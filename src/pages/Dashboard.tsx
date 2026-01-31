@@ -36,10 +36,11 @@ export default function Dashboard() {
         <div className="relative container mx-auto px-4 h-full flex items-center">
           <div className="max-w-2xl text-white">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Plant Trees, Earn Cash Rewards
+              <span className="text-green-400">Eco</span>{' '}
+              <span className="text-blue-400">Earn</span> - Plant Trees, Earn Cash
             </h1>
             <p className="text-lg md:text-xl mb-8 text-white/90">
-              Track your plants, maintain their health, and get paid for making the planet greener. Join thousands of eco-warriors today.
+              Track your plants, maintain their health, and get real cash rewards for making the planet greener. Turn environmental action into income today.
             </p>
             <Button
               size="lg"

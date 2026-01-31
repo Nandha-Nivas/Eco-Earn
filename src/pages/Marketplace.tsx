@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SEED_CATALOG } from '@/constants/seeds';
 import { SeedType } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ShoppingCart, Sprout, TrendingUp, Calendar, Leaf } from 'lucide-react';
+import { ShoppingCart, Sprout, TrendingUp, Calendar, Leaf, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFromStorage, saveToStorage } from '@/lib/mock-data';
-import { User, Transaction } from '@/types';
+import { addToCart } from '@/lib/cart';
 
 export default function Marketplace() {
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [couponCode, setCouponCode] = useState('');
+  const [addedToCart, setAddedToCart] = useState<string[]>([]);
 
   const categories = [
     { id: 'all', label: 'All Seeds' },
@@ -27,45 +27,31 @@ export default function Marketplace() {
     ? SEED_CATALOG
     : SEED_CATALOG.filter(seed => seed.category === selectedCategory);
 
-  const handlePurchase = (seed: SeedType) => {
-    const user: User = getFromStorage('user');
+  const handleAddToCart = (seed: SeedType) => {
+    addToCart(seed);
+    setAddedToCart([...addedToCart, seed.id]);
     
-    if (user.walletBalance < seed.price) {
-      toast({
-        title: 'Insufficient Balance',
-        description: 'You need more funds to purchase this seed.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Deduct from wallet
-    user.walletBalance -= seed.price;
-    
-    // Add transaction
-    const transactions: Transaction[] = getFromStorage('transactions', []);
-    const newTransaction: Transaction = {
-      id: `txn-${Date.now()}`,
-      userId: user.id,
-      type: 'purchase',
-      amount: -seed.price,
-      description: `Purchased ${seed.name} seeds`,
-      date: new Date().toISOString(),
-      balance: user.walletBalance,
-    };
-    transactions.unshift(newTransaction);
-
-    saveToStorage('user', user);
-    saveToStorage('transactions', transactions);
-
     toast({
-      title: 'Purchase Successful!',
-      description: `You've purchased ${seed.name} seeds. Ready to plant!`,
+      title: 'Added to Cart',
+      description: `${seed.name} has been added to your cart.`,
     });
 
-    // Reload page to update wallet display
-    setTimeout(() => window.location.reload(), 1500);
+    // Remove the checkmark after 2 seconds
+    setTimeout(() => {
+      setAddedToCart(prev => prev.filter(id => id !== seed.id));
+    }, 2000);
+
+    // Trigger cart update in header
+    window.dispatchEvent(new Event('cartUpdated'));
   };
+
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      window.location.reload();
+    };
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, []);
 
   const applyCoupon = () => {
     if (couponCode.toUpperCase() === 'GREEN20') {
@@ -193,10 +179,20 @@ export default function Marketplace() {
             <CardFooter className="flex gap-2">
               <Button
                 className="flex-1"
-                onClick={() => handlePurchase(seed)}
+                onClick={() => handleAddToCart(seed)}
+                variant={addedToCart.includes(seed.id) ? 'secondary' : 'default'}
               >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Buy for ${seed.price}
+                {addedToCart.includes(seed.id) ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Added to Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Add to Cart - ${seed.price}
+                  </>
+                )}
               </Button>
             </CardFooter>
           </Card>

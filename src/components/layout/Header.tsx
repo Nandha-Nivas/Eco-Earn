@@ -1,11 +1,23 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Leaf, User, Menu } from 'lucide-react';
+import { User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import logo from '@/assets/logo.png';
+import CartSheet from '@/components/features/CartSheet';
+import { getCartItemCount } from '@/lib/cart';
 
 export default function Header() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    setCartCount(getCartItemCount());
+  }, []);
+
+  const updateCartCount = () => {
+    setCartCount(getCartItemCount());
+  };
 
   const navItems = [
     { path: '/', label: 'Dashboard' },
@@ -18,9 +30,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2 font-bold text-xl text-primary">
-          <Leaf className="h-6 w-6" />
-          <span className="hidden sm:inline">GrowReward</span>
+        <Link to="/" className="flex items-center gap-2 font-bold text-xl">
+          <img src={logo} alt="Eco Earn" className="h-10 w-10 object-contain" />
+          <span className="hidden sm:inline">
+            <span className="text-green-600">Eco</span>{' '}
+            <span className="text-blue-500">Earn</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -40,7 +55,9 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <CartSheet itemCount={cartCount} onCartUpdate={updateCartCount} />
+          
           <Link to="/profile">
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <User className="h-5 w-5" />

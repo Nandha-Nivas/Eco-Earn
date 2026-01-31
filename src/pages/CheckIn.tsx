@@ -56,7 +56,9 @@ export default function CheckIn() {
     return Math.min(100, score);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!imagePreview) {
       toast({
         title: 'Image Required',
@@ -70,21 +72,27 @@ export default function CheckIn() {
 
     const healthScore = calculateHealthScore();
     const isMonthly = plant.photos.length > 0;
+    const isYielding = plant.monthlyCheckIns >= plant.seedType.growthDuration;
     const reward = isMonthly 
-      ? (plant.isYieldingStage ? 0 : plant.seedType.monthlyReward)
+      ? (isYielding ? plant.seedType.yieldingReward : plant.seedType.monthlyReward)
       : plant.seedType.plantingReward;
 
     // Update plant
     const plants: Plant[] = getFromStorage('plants', []);
     const updatedPlants = plants.map(p => {
       if (p.id === plantId) {
+        const newMonthlyCheckIns = p.monthlyCheckIns + (isMonthly ? 1 : 0);
+        const newIsYielding = newMonthlyCheckIns >= p.seedType.growthDuration;
+        
         return {
           ...p,
+          status: newIsYielding ? 'yielding' : (p.status === 'seedling' ? 'growing' : p.status),
           healthScore,
           lastCheckIn: new Date().toISOString(),
           nextCheckIn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          monthlyCheckIns: p.monthlyCheckIns + 1,
+          monthlyCheckIns: newMonthlyCheckIns,
           totalEarned: p.totalEarned + reward,
+          isYieldingStage: newIsYielding,
           photos: [
             ...p.photos,
             {
@@ -92,8 +100,11 @@ export default function CheckIn() {
               plantId: p.id,
               uploadDate: new Date().toISOString(),
               imageUrl: imagePreview,
-              stage: isMonthly ? 'monthly' : 'planting',
-              healthAssessment: assessment as HealthAssessment,
+              stage: newIsYielding ? 'yielding' : (isMonthly ? 'monthly' : 'planting'),
+              healthAssessment: {
+                ...assessment,
+                overallHealth: healthScore,
+              } as HealthAssessment,
               rewardEarned: reward,
             },
           ],
@@ -126,12 +137,16 @@ export default function CheckIn() {
     saveToStorage('user', user);
     saveToStorage('transactions', transactions);
 
+    const stageMessage = isYielding 
+      ? `🎉 Your plant has reached yielding stage! You earned $${reward.toFixed(2)}.`
+      : `You earned $${reward.toFixed(2)}. Keep up the great work!`;
+
     toast({
       title: 'Check-in Successful!',
-      description: `You earned $${reward.toFixed(2)}. Keep up the great work!`,
+      description: stageMessage,
     });
 
-    setTimeout(() => navigate('/my-plants'), 1500);
+    setTimeout(() => navigate('/my-plants'), 2000);
   };
 
   if (!plant) {
@@ -254,14 +269,16 @@ export default function CheckIn() {
           </CardContent>
         </Card>
 
-        <div className="flex gap-4">
-          <Button variant="outline" onClick={() => navigate('/my-plants')} className="flex-1">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} className="flex-1">
-            Submit Check-in
-          </Button>
-        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="flex gap-4">
+            <Button type="button" variant="outline" onClick={() => navigate('/my-plants')} className="flex-1">
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1">
+              Submit Check-in
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
