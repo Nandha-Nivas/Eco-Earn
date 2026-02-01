@@ -71,28 +71,37 @@ export default function CheckIn() {
     if (!plant) return;
 
     const healthScore = calculateHealthScore();
-    const isMonthly = plant.photos.length > 0;
-    const isYielding = plant.monthlyCheckIns >= plant.seedType.growthDuration;
-    const reward = isMonthly 
-      ? (isYielding ? plant.seedType.yieldingReward : plant.seedType.monthlyReward)
-      : plant.seedType.plantingReward;
+    const newMonthlyCheckIns = plant.monthlyCheckIns + 1;
+    const willBeYielding = newMonthlyCheckIns >= plant.seedType.growthDuration;
+    const isAlreadyYielding = plant.isYieldingStage;
+    
+    // Determine reward based on stage
+    let reward = plant.seedType.monthlyReward;
+    let rewardDescription = 'Monthly check-in';
+    
+    if (willBeYielding && !isAlreadyYielding) {
+      // First time reaching yielding stage
+      reward = plant.seedType.yieldingReward;
+      rewardDescription = 'Yielding stage reached';
+    } else if (isAlreadyYielding) {
+      // Already in yielding stage, continue yielding rewards
+      reward = plant.seedType.yieldingReward;
+      rewardDescription = 'Yielding stage';
+    }
 
     // Update plant
     const plants: Plant[] = getFromStorage('plants', []);
     const updatedPlants = plants.map(p => {
       if (p.id === plantId) {
-        const newMonthlyCheckIns = p.monthlyCheckIns + (isMonthly ? 1 : 0);
-        const newIsYielding = newMonthlyCheckIns >= p.seedType.growthDuration;
-        
         return {
           ...p,
-          status: newIsYielding ? 'yielding' : (p.status === 'seedling' ? 'growing' : p.status),
+          status: willBeYielding ? 'yielding' : 'growing',
           healthScore,
           lastCheckIn: new Date().toISOString(),
           nextCheckIn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           monthlyCheckIns: newMonthlyCheckIns,
           totalEarned: p.totalEarned + reward,
-          isYieldingStage: newIsYielding,
+          isYieldingStage: willBeYielding,
           photos: [
             ...p.photos,
             {
@@ -100,10 +109,11 @@ export default function CheckIn() {
               plantId: p.id,
               uploadDate: new Date().toISOString(),
               imageUrl: imagePreview,
-              stage: newIsYielding ? 'yielding' : (isMonthly ? 'monthly' : 'planting'),
+              stage: willBeYielding ? 'yielding' : 'monthly',
               healthAssessment: {
                 ...assessment,
                 overallHealth: healthScore,
+                notes: additionalNotes,
               } as HealthAssessment,
               rewardEarned: reward,
             },
@@ -118,6 +128,7 @@ export default function CheckIn() {
     user.walletBalance += reward;
     user.totalEarnings += reward;
     user.consecutiveStreak += 1;
+    user.environmentalScore += 10;
 
     // Add transaction
     const transactions: Transaction[] = getFromStorage('transactions', []);
@@ -126,7 +137,7 @@ export default function CheckIn() {
       userId: user.id,
       type: 'reward',
       amount: reward,
-      description: `${isMonthly ? 'Monthly' : 'Planting'} check-in reward - ${plant.seedType.name}`,
+      description: `${rewardDescription} reward - ${plant.seedType.name}`,
       plantId: plant.id,
       date: new Date().toISOString(),
       balance: user.walletBalance,
@@ -137,12 +148,12 @@ export default function CheckIn() {
     saveToStorage('user', user);
     saveToStorage('transactions', transactions);
 
-    const stageMessage = isYielding 
+    const stageMessage = willBeYielding && !isAlreadyYielding
       ? `🎉 Your plant has reached yielding stage! You earned $${reward.toFixed(2)}.`
-      : `You earned $${reward.toFixed(2)}. Keep up the great work!`;
+      : `✅ Check-in successful! You earned $${reward.toFixed(2)}. Health score: ${healthScore}/100`;
 
     toast({
-      title: 'Check-in Successful!',
+      title: 'Check-in Complete!',
       description: stageMessage,
     });
 
