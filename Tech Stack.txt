@@ -1,0 +1,44 @@
+Frontend:
+
+• React.js
+• HTML
+• CSS
+• JavaScript
+• Hosted on OnSpace (static frontend)
+
+Backend:
+
+• OnSpace AI Cloud Backend
+• REST APIs generated automatically
+• Authentication service (email/password)
+• Role-based access (user/admin)
+
+Database:
+
+• OnSpace Managed Database (SQL-like)
+Tables:
+
+users
+
+plants
+
+plant_images
+
+rewards
+
+penalties
+
+badges
+
+Storage:
+
+• OnSpace Cloud Storage
+• Stores plant images uploaded monthly
+
+Security:
+
+• Access control rules (similar to RLS):
+
+Users can access only their own plants
+
+Admin can access all data

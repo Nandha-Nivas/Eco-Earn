@@ -1,0 +1,22 @@
+We used a single detailed prompt in OnSpace AI to:
+• Generate a complete backend system
+• Create authentication (login/register)
+• Create plant tracking logic
+• Add image upload & verification
+• Implement rewards, penalties, badges & leaderboard
+• Fix the “Submit Check-in button not working” bug
+• Add a marketplace cart feature
+• Connect frontend with backend APIs
+
+Instead of using Supabase, OnSpace AI:
+✔ Automatically created its own backend services
+✔ Hosted APIs on its own cloud
+✔ Managed database internally
+✔ Managed image storage internally
+
+The prompt focused on:
+• Business logic (reward/penalty rules)
+• Security (user vs admin access)
+• Feature completeness
+• Bug fixing
+• Scalability

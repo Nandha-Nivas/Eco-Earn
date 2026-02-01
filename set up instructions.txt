@@ -1,0 +1,42 @@
+Step 1: Frontend
+
+Open website:
+ https://react-9bf89q.onspace.build
+
+No local setup needed (already hosted).
+
+Step 2: Backend (OnSpace)
+
+Login to onspace.ai
+
+Paste the backend generation prompt
+
+OnSpace auto-creates:
+
+Database
+
+APIs
+
+Auth system
+
+Storage
+
+Backend is deployed automatically in OnSpace Cloud
+
+Step 3: Connect Frontend to Backend
+
+In your React project:
+• Set API base URL to OnSpace backend URL
+• Use fetch/axios to:
+
+Register user
+
+Login user
+
+Upload plant images
+
+Fetch rewards & leaderboard
+
+Example flow:
+
+React → OnSpace API → OnSpace DB → OnSpace Storage

@@ -1,0 +1,51 @@
+PROBLEM STATEMENT:
+	“How can individuals be made accountable for plant care while also benefiting economically from environmental actions?”
+
+ in simple word,Plant a tree, make sure it is growing good and claim the reward.
+
+STEPS:
+we will sell seeds to the registered user
+1. Plant a tree and upload the pic - some reward
+2. Upload a pic of tree every month to evaluate that the tree is healthy - some reward
+3. When it starts giving the yield - some reward based on the function or type of problem it solves (like purifies the most, fruits, vegetables, medicinal...)
+4. When a plant which they grown dies - a small kind of penalty.
+5. Earn badges kind of stuff....
+6. Ranking based on the number of plants they grown, their health..etc;
+
+NOTE: 
+	1.Every reward is cash reward only. 
+	2. When a plant dies due to natural calamity in that region, then no penalty.
+	3. When the plant reaches its yielding stage, rewards will be awarded only on the yielding and no further monthly reward is awarded on that plant.
+FLAWS:
+	1. Validation of the image(whether its real or not)
+NEW IDEA:
+	1. Give coupons for the users, to purchase seeds from us.
+	2. NO share, we will sell the seeds on profit and that's it.
+Build a full-working website and make sure that its interface is optimal without any bugs and also include all the features that are required for my project
+Primary User Flow:Track my plants
+Check-in Experience:Guided health assessment
+Seed Catalog:Reward potential
+Reward Tracking:Detailed transaction log
+Ranking System:Total plants alive,Environmental impact score,Consistency streak
+Now create a login page for this website by taking the basic details from the user. Name the website as "Eco Earn" and add the image that i have attached as Logo of the organization
+Also make sure to add a feature and a fix in an existing feature
+ in Plant check in - after uploading the image of the plant, make sure submit is working and output is as expected.
+Now add a new  cart feature in marketplace
+Create a Supabase backend for a tree plantation reward app.
+Use Supabase Auth (email/password).
+Create these tables with relations:
+users (id, name, email, role: user/admin)
+plants (id, user_id, plant_type, date_planted, status: alive/dead/yielding, location)
+plant_images (id, plant_id, image_url, upload_month, health_status: pending/healthy/unhealthy) rewards (id, user_id, plant_id, amount, reason, date) penalties (id, user_id, plant_id, amount, reason, date) badges (id, user_id, badge_name, date_awarded)
+Use Supabase Storage for plant images.
+Allow only one image per plant per month.
+Admin can:
+view all plants verify plant health update plant status When plant health is approved, insert a reward record.
+When plant status becomes dead, insert a penalty record.
+Create a leaderboard based on:
+number of healthy plants total rewards earned
+Use Row Level Security so:
+users can only access their own plants and images admin can access all data
+Generate REST APIs for React frontend.
+My frontend already exists, only generate backend and APIs.
+in plant check-in section, even after i upload a picture the "Submit Check-in" button is not responding. Fix this

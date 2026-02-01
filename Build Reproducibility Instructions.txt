@@ -1,0 +1,37 @@
+To rebuild this project:
+
+1. Frontend:
+
+• Clone React UI
+• Deploy on OnSpace static hosting
+
+2. Backend:
+
+• Open OnSpace AI
+• Paste full backend prompt
+• Let it generate:
+
+APIs
+
+Database
+
+Auth
+
+Storage
+
+Admin rules
+
+3. Environment:
+
+Set:
+
+API_BASE_URL = OnSpace backend URL
+
+4. Test:
+
+• Register user
+• Add plant
+• Upload image
+• Admin verifies
+• Reward record created
+• Leaderboard updates
